@@ -1,5 +1,6 @@
 extern crate hyper;
 extern crate json;
+extern crate uuid;
 
 pub struct MusicBrainz {
     client: hyper::Client,

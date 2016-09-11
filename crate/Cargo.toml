@@ -9,3 +9,4 @@ license = "MIT"
 [dependencies]
 hyper = "0.9.10"
 json = "0.10.2"
+uuid = "0.3.1"

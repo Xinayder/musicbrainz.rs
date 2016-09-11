@@ -1,12 +1,13 @@
 use json::parse;
 use std::io::Read;
 use album::Album;
+use uuid::Uuid;
 
 #[derive(Debug)]
 pub struct Artist {
     pub name: String,
     pub gender: String,
-    pub id: String,
+    pub id: Uuid,
     pub tags: Vec<String>,
     pub albums: Vec<Album>
 }
@@ -16,7 +17,7 @@ impl Artist {
         Artist {
             name: name,
             gender: gender,
-            id: String::new(),
+            id: Uuid::nil(),
             tags: Vec::new(),
             albums: Vec::new(),
         }
@@ -52,7 +53,10 @@ impl ArtistTrait for super::MusicBrainz {
                     if !artist["name"].is_null() {
                         let name = artist["name"].to_string();
                         let gender = artist["gender"].to_string();
-                        let id = artist["id"].to_string();
+
+                        let mut id = Uuid::parse_str(artist["id"].as_str()
+                            .expect("failed to parse artist ID as slice"))
+                            .expect("failed to parse artist ID as Uuid");
 
                         let mut artist_obj = Artist::new(name, gender);
                         artist_obj.id = id;
@@ -78,14 +82,19 @@ impl ArtistTrait for super::MusicBrainz {
 
         let data = parse(&buf).unwrap();
         let mut result = Artist::new(data["name"].to_string(), data["gender"].to_string());
+        result.id = Uuid::parse_str(data["id"].as_str()
+            .expect("failed to parse artist ID as slice"))
+            .expect("failed to parse artist ID as Uuid");
 
         let albums = &data["release-groups"];
         for album in albums.members() {
             result.albums.push(Album {
                 title: album["title"].to_string(),
                 release_date: album["first-release-date"].to_string(),
-                id: album["id"].to_string(),
-                artist: data["id"].to_string()
+                id: Uuid::parse_str(album["id"].as_str()
+                    .expect("failed to parse release group ID as slice"))
+                    .expect("failed to parse release group ID as Uuid"),
+                artist: result.id
             });
         }
 
