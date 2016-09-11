@@ -2,6 +2,7 @@ use json::parse;
 use std::io::Read;
 use album::Album;
 use uuid::Uuid;
+use enums::{PersonType};
 
 #[derive(Debug, Clone)]
 pub struct Artist {
@@ -9,17 +10,19 @@ pub struct Artist {
     pub gender: String,
     pub id: Uuid,
     pub tags: Vec<String>,
-    pub albums: Vec<Album>
+    pub albums: Vec<Album>,
+    pub artist_type: PersonType
 }
 
 impl Artist {
-    pub fn new(name: String, gender: String, id: Uuid, tags: Vec<String>, albums: Vec<Album>) -> Artist {
+    pub fn new(name: String, gender: String, id: Uuid, tags: Vec<String>, albums: Vec<Album>, artist_type: PersonType) -> Artist {
         Artist {
             name: name,
             gender: gender,
             id: id,
             tags: tags,
             albums: albums,
+            artist_type: artist_type
         }
     }
 }
@@ -63,7 +66,7 @@ impl ArtistTrait for super::MusicBrainz {
                             tags.push(tag["name"].to_string());
                         }
 
-                        results.push(Artist::new(name, gender, id, tags, albums));
+                        results.push(Artist::new(name, gender, id, tags, albums, PersonType::Other));
                     }
                 }
             }
@@ -81,6 +84,7 @@ impl ArtistTrait for super::MusicBrainz {
 
         let artist_data = parse(&buf).unwrap();
         let artist = artist.clone();
+        let artist_type = artist_data["type"].as_str().expect("failed to parse artist type to slice").parse::<PersonType>().unwrap();
         let mut artist_albums: Vec<Album> = Vec::new();
 
         let albums = &artist_data["release-groups"];
@@ -95,6 +99,6 @@ impl ArtistTrait for super::MusicBrainz {
             });
         }
 
-        Some(Artist::new(artist.name, artist.gender, artist.id, artist.tags, artist_albums))
+        Some(Artist::new(artist.name, artist.gender, artist.id, artist.tags, artist_albums, artist_type))
     }
 }

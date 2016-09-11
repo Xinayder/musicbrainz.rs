@@ -21,12 +21,14 @@ impl MusicBrainz {
         }
     }
 
-    pub fn get(self, url: &str) -> hyper::error::Result<hyper::client::response::Response> {
-        self.client.get(url).header(hyper::header::UserAgent(self.user_agent)).send()
+    pub fn get(&self, url: &str) -> hyper::error::Result<hyper::client::response::Response> {
+        let user_agent = self.user_agent.clone();
+        self.client.get(url).header(hyper::header::UserAgent(user_agent)).send()
     }
 }
 
 pub mod artist;
 pub mod album;
+pub mod enums;
 
 pub use artist::ArtistTrait;
