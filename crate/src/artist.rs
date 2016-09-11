@@ -3,7 +3,7 @@ use std::io::Read;
 use album::Album;
 use uuid::Uuid;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Artist {
     pub name: String,
     pub gender: String,
@@ -13,20 +13,20 @@ pub struct Artist {
 }
 
 impl Artist {
-    pub fn new(name: String, gender: String) -> Artist {
+    pub fn new(name: String, gender: String, id: Uuid, tags: Vec<String>, albums: Vec<Album>) -> Artist {
         Artist {
             name: name,
             gender: gender,
-            id: Uuid::nil(),
-            tags: Vec::new(),
-            albums: Vec::new(),
+            id: id,
+            tags: tags,
+            albums: albums,
         }
     }
 }
 
 pub trait ArtistTrait {
     fn search(self, query: &str) -> Vec<Artist>;
-    fn lookup(self, id: &str) -> Option<Artist>;
+    fn lookup(self, artist: Artist) -> Option<Artist>;
 }
 
 impl ArtistTrait for super::MusicBrainz {
@@ -53,19 +53,17 @@ impl ArtistTrait for super::MusicBrainz {
                     if !artist["name"].is_null() {
                         let name = artist["name"].to_string();
                         let gender = artist["gender"].to_string();
-
-                        let mut id = Uuid::parse_str(artist["id"].as_str()
+                        let id = Uuid::parse_str(artist["id"].as_str()
                             .expect("failed to parse artist ID as slice"))
                             .expect("failed to parse artist ID as Uuid");
-
-                        let mut artist_obj = Artist::new(name, gender);
-                        artist_obj.id = id;
+                        let mut tags: Vec<String> = Vec::new();
+                        let albums: Vec<Album> = Vec::new();
 
                         for tag in artist["tags"].members() {
-                            artist_obj.tags.push(tag["name"].to_string());
+                            tags.push(tag["name"].to_string());
                         }
 
-                        results.push(artist_obj);
+                        results.push(Artist::new(name, gender, id, tags, albums));
                     }
                 }
             }
@@ -73,31 +71,30 @@ impl ArtistTrait for super::MusicBrainz {
         results
     }
 
-    fn lookup(self, id: &str) -> Option<Artist> {
-        let endpoint = format!("https://musicbrainz.org/ws/2/artist/{id}?inc=release-groups&fmt=json", id=id);
+    fn lookup(self, artist: Artist) -> Option<Artist> {
+        let id = artist.id.hyphenated().to_string();
+        let endpoint = format!("https://musicbrainz.org/ws/2/artist/{id}?inc=release-groups&fmt=json", id=&id);
         let mut res = self.get(&endpoint).expect("failed to lookup artist");
 
         let mut buf = String::new();
         res.read_to_string(&mut buf).expect("failed to read response to string");
 
-        let data = parse(&buf).unwrap();
-        let mut result = Artist::new(data["name"].to_string(), data["gender"].to_string());
-        result.id = Uuid::parse_str(data["id"].as_str()
-            .expect("failed to parse artist ID as slice"))
-            .expect("failed to parse artist ID as Uuid");
+        let artist_data = parse(&buf).unwrap();
+        let artist = artist.clone();
+        let mut artist_albums: Vec<Album> = Vec::new();
 
-        let albums = &data["release-groups"];
+        let albums = &artist_data["release-groups"];
         for album in albums.members() {
-            result.albums.push(Album {
+            artist_albums.push(Album {
                 title: album["title"].to_string(),
                 release_date: album["first-release-date"].to_string(),
                 id: Uuid::parse_str(album["id"].as_str()
                     .expect("failed to parse release group ID as slice"))
                     .expect("failed to parse release group ID as Uuid"),
-                artist: result.id
+                artist: artist.id
             });
         }
 
-        Some(result)
+        Some(Artist::new(artist.name, artist.gender, artist.id, artist.tags, artist_albums))
     }
 }

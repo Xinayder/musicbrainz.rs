@@ -1,6 +1,6 @@
 use uuid::Uuid;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Album {
     pub title: String,
     pub release_date: String,
@@ -9,12 +9,12 @@ pub struct Album {
 }
 
 impl Album {
-    pub fn new(title: String, id: Uuid) -> Album {
+    pub fn new(title: String, release_date: String, id: Uuid, artist: Uuid) -> Album {
         Album {
             title: title,
-            release_date: String::new(),
-            id: Uuid::nil(),
-            artist: Uuid::nil()
+            release_date: release_date,
+            id: id,
+            artist: artist
         }
     }
 }

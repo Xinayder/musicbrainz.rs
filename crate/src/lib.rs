@@ -2,6 +2,7 @@ extern crate hyper;
 extern crate json;
 extern crate uuid;
 
+#[derive(Debug)]
 pub struct MusicBrainz {
     client: hyper::Client,
     user_agent: String
