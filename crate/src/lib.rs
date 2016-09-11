@@ -25,5 +25,6 @@ impl MusicBrainz {
 }
 
 pub mod artist;
+pub mod album;
 
 pub use artist::ArtistTrait;

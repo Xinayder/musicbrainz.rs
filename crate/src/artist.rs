@@ -1,5 +1,6 @@
 use json::parse;
 use std::io::Read;
+use album::Album;
 
 #[derive(Debug)]
 pub struct Artist {
@@ -7,6 +8,7 @@ pub struct Artist {
     pub gender: String,
     pub id: String,
     pub tags: Vec<String>,
+    pub albums: Vec<Album>
 }
 
 impl Artist {
@@ -65,5 +67,28 @@ impl ArtistTrait for super::MusicBrainz {
             }
         }
         Some(results)
+    }
+
+    fn lookup(self, id: &str) -> Option<Artist> {
+        let endpoint = format!("https://musicbrainz.org/ws/2/artist/{id}?inc=release-groups&fmt=json", id=id);
+        let mut res = self.get(&endpoint).expect("failed to lookup artist");
+
+        let mut buf = String::new();
+        res.read_to_string(&mut buf).expect("failed to read response to string");
+
+        let data = parse(&buf).unwrap();
+        let mut result = Artist::new(data["name"].to_string(), data["gender"].to_string());
+
+        let albums = &data["release-groups"];
+        for album in albums.members() {
+            result.albums.push(Album {
+                title: album["title"].to_string(),
+                release_date: album["first-release-date"].to_string(),
+                id: album["id"].to_string(),
+                artist: data["id"].to_string()
+            });
+        }
+
+        Some(result)
     }
 }
