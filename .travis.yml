@@ -9,6 +9,10 @@ matrix:
   allow_failures:
     - rust: nightly
 
+branches:
+  except:
+    - dev
+
 os:
   - linux
   - osx
