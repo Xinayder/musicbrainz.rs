@@ -15,28 +15,24 @@ impl Artist {
             name: name,
             gender: gender,
             id: String::new(),
-            tags: Vec::new()
+            tags: Vec::new(),
+            albums: Vec::new(),
         }
     }
 }
 
 pub trait ArtistTrait {
     fn search(self, query: &str) -> Option<Vec<Artist>>;
+    fn lookup(self, id: &str) -> Option<Artist>;
 }
 
 impl ArtistTrait for super::MusicBrainz {
     fn search(self, name: &str) -> Option<Vec<Artist>> {
         let endpoint = format!("https://musicbrainz.org/ws/2/artist?query={}&fmt=json", name);
-        let mut res = match self.get(&endpoint) {
-            Ok(res) => res,
-            Err(_) => panic!("Failed to get artist"),
-        };
+        let mut res = self.get(&endpoint).expect("failed to search for artist");
 
         let mut buf = String::new();
-        match res.read_to_string(&mut buf) {
-            Ok(_) => (),
-            Err(_) => panic!("Failed to read to string"),
-        };
+        res.read_to_string(&mut buf).expect("failed to read response to string");
 
         let data = parse(&buf).unwrap();
         let count = data["count"].as_i32().unwrap();
