@@ -1,0 +1,7 @@
+[package]
+name = "musicbrainz-bin"
+version = "0.1.0"
+authors = ["Alexandre Oliveira <rockytvbr@gmail.com>"]
+
+[dependencies.musicbrainz]
+path = "crate/"

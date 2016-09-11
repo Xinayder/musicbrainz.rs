@@ -1,0 +1,9 @@
+[package]
+name = "musicbrainz"
+description = ""
+license = "MIT"
+version = "0.1.0"
+
+[dependencies]
+hyper = "0.9.10"
+json = "0.10.2"
