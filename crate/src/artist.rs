@@ -1,4 +1,4 @@
-use album::Album;
+use release_group::ReleaseGroup;
 use uuid::Uuid;
 use enums::{PersonType, AlbumMainType, AlbumSecondaryType};
 
@@ -9,18 +9,18 @@ pub struct Artist {
     pub gender: String,
     pub artist_type: PersonType,
     pub tags: Vec<String>,
-    pub albums: Vec<Album>
+    pub release_groups: Vec<ReleaseGroup>
 }
 
 impl Artist {
-    pub fn new(id: Uuid, name: String, gender: String, artist_type: PersonType, tags: Vec<String>, albums: Vec<Album>) -> Artist {
+    pub fn new(id: Uuid, name: String, gender: String, artist_type: PersonType, tags: Vec<String>, release_groups: Vec<ReleaseGroup>) -> Artist {
         Artist {
             id: id,
             name: name,
             gender: gender,
             artist_type: artist_type,
             tags: tags,
-            albums: albums
+            release_groups: release_groups
         }
     }
 }
@@ -54,13 +54,13 @@ impl ArtistTrait for super::MusicBrainz {
                             .expect("failed to parse artist ID as slice"))
                             .expect("failed to parse artist ID as Uuid");
                         let mut tags: Vec<String> = Vec::new();
-                        let albums: Vec<Album> = Vec::new();
+                        let release_groups: Vec<ReleaseGroup> = Vec::new();
 
                         for tag in artist["tags"].members() {
                             tags.push(tag["name"].to_string());
                         }
 
-                        results.push(Artist::new(id, name, gender, PersonType::Other, tags, albums));
+                        results.push(Artist::new(id, name, gender, PersonType::Other, tags, release_groups));
                     }
                 }
             }
@@ -75,10 +75,10 @@ impl ArtistTrait for super::MusicBrainz {
 
         let artist_data = self.get(&endpoint).unwrap();
         let artist_type = artist_data["type"].as_str().expect("failed to parse artist type as slice").parse::<PersonType>().unwrap();
-        let mut artist_albums: Vec<Album> = Vec::new();
+        let mut artist_albums: Vec<ReleaseGroup> = Vec::new();
 
-        let albums = &artist_data["release-groups"];
-        for album in albums.members() {
+        let release_groups = &artist_data["release-groups"];
+        for album in release_groups.members() {
             let mut secondary_types: Vec<AlbumSecondaryType> = Vec::new();
             for secondary_type in album["secondary-types"].members() {
                 secondary_types.push(secondary_type.as_str()
@@ -87,7 +87,7 @@ impl ArtistTrait for super::MusicBrainz {
                     .unwrap())
             }
 
-            artist_albums.push(Album {
+            artist_albums.push(ReleaseGroup {
                 title: album["title"].to_string(),
                 release_date: album["first-release-date"].to_string(),
                 id: Uuid::parse_str(album["id"].as_str()

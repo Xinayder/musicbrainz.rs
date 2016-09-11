@@ -38,7 +38,7 @@ impl MusicBrainz {
 }
 
 pub mod artist;
-pub mod album;
+pub mod release_group;
 pub mod enums;
 
 pub use artist::ArtistTrait;
