@@ -2,6 +2,8 @@ extern crate hyper;
 extern crate json;
 extern crate uuid;
 
+use std::io::Read;
+
 #[derive(Debug)]
 pub struct MusicBrainz {
     client: hyper::Client,
@@ -21,10 +23,18 @@ impl MusicBrainz {
         }
     }
 
-    pub fn get(&self, url: &str) -> hyper::error::Result<hyper::client::response::Response> {
+    pub fn get(&self, url: &str) -> json::Result<json::JsonValue> {
         let user_agent = self.user_agent.clone();
-        self.client.get(url).header(hyper::header::UserAgent(user_agent)).send()
+        let mut res = self.client.get(url).header(hyper::header::UserAgent(user_agent))
+            .send()
+            .expect(&format!("failed to get url '{}'", url));
+
+        let mut buf = String::new();
+        res.read_to_string(&mut buf).expect("failed to read response body to string");
+
+        json::parse(&buf)
     }
+
 }
 
 pub mod artist;

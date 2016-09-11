@@ -1,5 +1,3 @@
-use json::parse;
-use std::io::Read;
 use album::Album;
 use uuid::Uuid;
 use enums::{PersonType, AlbumMainType, AlbumSecondaryType};
@@ -35,12 +33,8 @@ pub trait ArtistTrait {
 impl ArtistTrait for super::MusicBrainz {
     fn search(&self, name: &str) -> Vec<Artist> {
         let endpoint = format!("https://musicbrainz.org/ws/2/artist?query={}&fmt=json", name);
-        let mut res = self.get(&endpoint).expect("failed to search for artist");
+        let data = self.get(&endpoint).unwrap();
 
-        let mut buf = String::new();
-        res.read_to_string(&mut buf).expect("failed to read response to string");
-
-        let data = parse(&buf).unwrap();
         let count = data["count"].as_i32().unwrap();
 
         if count == 0 {
@@ -75,15 +69,11 @@ impl ArtistTrait for super::MusicBrainz {
     }
 
     fn lookup(&self, artist: Artist) -> Option<Artist> {
+        let artist = artist.clone();
         let id = artist.id.hyphenated().to_string();
         let endpoint = format!("https://musicbrainz.org/ws/2/artist/{id}?inc=release-groups&fmt=json", id=&id);
-        let mut res = self.get(&endpoint).expect("failed to lookup artist");
 
-        let mut buf = String::new();
-        res.read_to_string(&mut buf).expect("failed to read response to string");
-
-        let artist_data = parse(&buf).unwrap();
-        let artist = artist.clone();
+        let artist_data = self.get(&endpoint).unwrap();
         let artist_type = artist_data["type"].as_str().expect("failed to parse artist type as slice").parse::<PersonType>().unwrap();
         let mut artist_albums: Vec<Album> = Vec::new();
 
