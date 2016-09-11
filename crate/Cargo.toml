@@ -1,9 +1,10 @@
 [package]
 name = "musicbrainz"
-description = "MusicBrainz API bindings for Rust"
-license = "MIT"
 version = "0.1.0"
+description = "MusicBrainz API bindings for Rust"
 authors = ["Alexandre Oliveira <rockytvbr@gmail.com>"]
+repository = "https://github.com/RockyTV/musicbrainz.rs"
+license = "MIT"
 
 [dependencies]
 hyper = "0.9.10"
