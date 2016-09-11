@@ -24,12 +24,12 @@ impl Artist {
 }
 
 pub trait ArtistTrait {
-    fn search(self, query: &str) -> Option<Vec<Artist>>;
+    fn search(self, query: &str) -> Vec<Artist>;
     fn lookup(self, id: &str) -> Option<Artist>;
 }
 
 impl ArtistTrait for super::MusicBrainz {
-    fn search(self, name: &str) -> Option<Vec<Artist>> {
+    fn search(self, name: &str) -> Vec<Artist> {
         let endpoint = format!("https://musicbrainz.org/ws/2/artist?query={}&fmt=json", name);
         let mut res = self.get(&endpoint).expect("failed to search for artist");
 
@@ -40,7 +40,7 @@ impl ArtistTrait for super::MusicBrainz {
         let count = data["count"].as_i32().unwrap();
 
         if count == 0 {
-            return None;
+            return Vec::new();
         }
 
         let artists = &data["artists"];
@@ -66,7 +66,7 @@ impl ArtistTrait for super::MusicBrainz {
                 }
             }
         }
-        Some(results)
+        results
     }
 
     fn lookup(self, id: &str) -> Option<Artist> {
