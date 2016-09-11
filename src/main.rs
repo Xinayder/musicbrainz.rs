@@ -3,8 +3,9 @@ use musicbrainz::*;
 
 fn main() {
     let app = MusicBrainz::new();
-    let artist = app.lookup("4a00ec9d-c635-463a-8cd4-eb61725f0c60").unwrap();
-    for album in &artist.albums {
-        println!("{:?}", album);
+    let results = app.search("deadmau5");
+    for result in results {
+        let artist = app.lookup(result);
+        println!("{:?}", artist);
     }
 }
