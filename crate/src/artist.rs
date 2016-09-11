@@ -2,27 +2,27 @@ use json::parse;
 use std::io::Read;
 use album::Album;
 use uuid::Uuid;
-use enums::{PersonType};
+use enums::{PersonType, AlbumMainType, AlbumSecondaryType};
 
 #[derive(Debug, Clone)]
 pub struct Artist {
+    pub id: Uuid,
     pub name: String,
     pub gender: String,
-    pub id: Uuid,
+    pub artist_type: PersonType,
     pub tags: Vec<String>,
-    pub albums: Vec<Album>,
-    pub artist_type: PersonType
+    pub albums: Vec<Album>
 }
 
 impl Artist {
-    pub fn new(name: String, gender: String, id: Uuid, tags: Vec<String>, albums: Vec<Album>, artist_type: PersonType) -> Artist {
+    pub fn new(id: Uuid, name: String, gender: String, artist_type: PersonType, tags: Vec<String>, albums: Vec<Album>) -> Artist {
         Artist {
+            id: id,
             name: name,
             gender: gender,
-            id: id,
+            artist_type: artist_type,
             tags: tags,
-            albums: albums,
-            artist_type: artist_type
+            albums: albums
         }
     }
 }
@@ -66,7 +66,7 @@ impl ArtistTrait for super::MusicBrainz {
                             tags.push(tag["name"].to_string());
                         }
 
-                        results.push(Artist::new(name, gender, id, tags, albums, PersonType::Other));
+                        results.push(Artist::new(id, name, gender, PersonType::Other, tags, albums));
                     }
                 }
             }
@@ -84,21 +84,34 @@ impl ArtistTrait for super::MusicBrainz {
 
         let artist_data = parse(&buf).unwrap();
         let artist = artist.clone();
-        let artist_type = artist_data["type"].as_str().expect("failed to parse artist type to slice").parse::<PersonType>().unwrap();
+        let artist_type = artist_data["type"].as_str().expect("failed to parse artist type as slice").parse::<PersonType>().unwrap();
         let mut artist_albums: Vec<Album> = Vec::new();
 
         let albums = &artist_data["release-groups"];
         for album in albums.members() {
+            let mut secondary_types: Vec<AlbumSecondaryType> = Vec::new();
+            for secondary_type in album["secondary-types"].members() {
+                secondary_types.push(secondary_type.as_str()
+                    .expect("failed to parse album secondary type as slice")
+                    .parse::<AlbumSecondaryType>()
+                    .unwrap())
+            }
+
             artist_albums.push(Album {
                 title: album["title"].to_string(),
                 release_date: album["first-release-date"].to_string(),
                 id: Uuid::parse_str(album["id"].as_str()
                     .expect("failed to parse release group ID as slice"))
                     .expect("failed to parse release group ID as Uuid"),
-                artist: artist.id
+                artist: artist.id,
+                primary_type: album["primary-type"].as_str()
+                    .expect("failed to parse album primary type as slice")
+                    .parse::<AlbumMainType>()
+                    .unwrap(),
+                secondary_types: secondary_types
             });
         }
 
-        Some(Artist::new(artist.name, artist.gender, artist.id, artist.tags, artist_albums, artist_type))
+        Some(Artist::new(artist.id, artist.name, artist.gender, artist_type, artist.tags, artist_albums))
     }
 }
