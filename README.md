@@ -1,4 +1,5 @@
 # musicbrainz.rs
+[![Build Status](https://travis-ci.org/RockyTV/musicbrainz.rs.svg?branch=master)](https://travis-ci.org/RockyTV/musicbrainz.rs)
 [MusicBrainz](https://musicbrainz.org/) API bindings for Rust.
 
 ## Compiling
