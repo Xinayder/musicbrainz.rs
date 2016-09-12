@@ -25,14 +25,29 @@ impl Artist {
     }
 }
 
+/// Provides methods for browsing, looking up or searching artists.
 pub trait ArtistTrait {
     fn search(&self, query: &str) -> Vec<Artist>;
     fn lookup(&self, artist: Artist) -> Option<Artist>;
 }
 
 impl ArtistTrait for super::MusicBrainz {
-    fn search(&self, name: &str) -> Vec<Artist> {
-        let endpoint = format!("https://musicbrainz.org/ws/2/artist?query={}&fmt=json", name);
+    /// Searches MusicBrainz for artists based on the search query.
+    ///
+    /// Returns a `Vec` containing the artists matching the search query.
+    /// If no artists were found, returns an empty `Vec`.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use musicbrainz::*;
+    /// let musicbrainz = MusicBrainz::new();
+    /// let search_results = musicbrainz.search("deadmau5");
+    ///
+    /// assert_eq!(search_results[0].id.hyphenated().to_string(), "4a00ec9d-c635-463a-8cd4-eb61725f0c60");
+    /// ```
+    fn search(&self, query: &str) -> Vec<Artist> {
+        let endpoint = format!("https://musicbrainz.org/ws/2/artist?query={}&fmt=json", query);
         let data = self.get(&endpoint).unwrap();
 
         let count = data["count"].as_i32().unwrap();
@@ -68,6 +83,8 @@ impl ArtistTrait for super::MusicBrainz {
         results
     }
 
+    /// Lookup an artist by using its MusicBrainz Identifier.
+    ///
     fn lookup(&self, artist: Artist) -> Option<Artist> {
         let artist = artist.clone();
         let id = artist.id.hyphenated().to_string();

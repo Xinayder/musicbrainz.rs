@@ -11,6 +11,17 @@ pub struct MusicBrainz {
 }
 
 impl MusicBrainz {
+    /// Instantiates a new `MusicBrainz` struct.
+    ///
+    /// The `MusicBrainz` struct contains useful methods required by the library.
+    /// It must be instantiated before using the implemented methods.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use musicbrainz::*;
+    /// let musicbrainz = MusicBrainz::new();
+    /// ```
     pub fn new() -> MusicBrainz {
         let user_agent = format!("{name}/{version} ( {homepage} )",
             name=env!("CARGO_PKG_NAME"), version=env!("CARGO_PKG_VERSION"),
@@ -23,7 +34,7 @@ impl MusicBrainz {
         }
     }
 
-    pub fn get(&self, url: &str) -> json::Result<json::JsonValue> {
+    fn get(&self, url: &str) -> json::Result<json::JsonValue> {
         let user_agent = self.user_agent.clone();
         let mut res = self.client.get(url).header(hyper::header::UserAgent(user_agent))
             .send()

@@ -1,12 +1,19 @@
 use std::str::FromStr;
 
 #[derive(Debug, Clone)]
+/// The PersonType enum is used to state whether an artist is a person, a group, or something else.
 pub enum PersonType {
+    /// Indicates an individual person.
     Person,
+    /// Indicates a group of people that may or may not have a distinctive name.
     Group,
+    /// Indicates an orchestra (a large instrumental ensemble).
     Orchestra,
+    /// Indicates a choir/chorus (a large vocal ensemble).
     Choir,
+    /// Indicates an individual fictional character.
     Character,
+    /// Anything which does not fit into the above categories.
     Other
 }
 
