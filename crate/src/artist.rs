@@ -1,6 +1,7 @@
 use release_group::ReleaseGroup;
 use uuid::Uuid;
 use enums::{PersonType, AlbumMainType, AlbumSecondaryType};
+use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct Artist {
@@ -27,8 +28,8 @@ impl Artist {
 
 /// Provides methods for browsing, looking up or searching artists.
 pub trait ArtistTrait {
-    fn search(&self, query: &str) -> Vec<Artist>;
-    fn lookup(&self, artist: Artist) -> Option<Artist>;
+    fn search(&self, params: &mut HashMap<&str, &str>) -> Vec<Artist>;
+    fn lookup(&self, artist: Artist, params: &mut HashMap<&str, &str>) -> Option<Artist>;
 }
 
 impl ArtistTrait for super::MusicBrainz {
@@ -46,8 +47,9 @@ impl ArtistTrait for super::MusicBrainz {
     ///
     /// assert_eq!(search_results[0].id.hyphenated().to_string(), "4a00ec9d-c635-463a-8cd4-eb61725f0c60");
     /// ```
-    fn search(&self, query: &str) -> Vec<Artist> {
-        let data = self.get(&format!("artist?query={}&fmt=json", query)).unwrap();
+    fn search(&self, params: &mut HashMap<&str, &str>) -> Vec<Artist> {
+        params.insert("fmt", "json");
+        let data = self.get("artist", params).unwrap();
 
         let count = data["count"].as_i32().unwrap();
 
@@ -84,13 +86,26 @@ impl ArtistTrait for super::MusicBrainz {
 
     /// Lookup an artist by using its MusicBrainz Identifier.
     ///
-    fn lookup(&self, artist: Artist) -> Option<Artist> {
-        let artist = artist.clone();
-        let id = artist.id.hyphenated().to_string();
+    fn lookup(&self, artist: Artist, params: &mut HashMap<&str, &str>) -> Option<Artist> {
+        params.insert("fmt", "json");
 
-        let artist_data = self.get(&format!("artist/{id}?inc=release-groups&fmt=json", id=&id)).unwrap();
+        let artist_clone = artist.clone();
+        let id = artist_clone.id.hyphenated().to_string();
+        let artist_data = self.get(&format!("artist/{id}", id=&id), params).unwrap();
+
+        if !artist_data["error"].is_null() {
+            return None;
+        }
+
         let artist_type = artist_data["type"].as_str().expect("failed to parse artist type as slice").parse::<PersonType>().unwrap();
         let mut artist_albums: Vec<ReleaseGroup> = Vec::new();
+
+        let mut tags: Vec<String> = Vec::new();
+        if !artist_data["tags"].is_null() {
+            for tag in artist_data["tags"].members() {
+                tags.push(tag["name"].to_string());
+            }
+        }
 
         let release_groups = &artist_data["release-groups"];
         for album in release_groups.members() {
@@ -102,21 +117,32 @@ impl ArtistTrait for super::MusicBrainz {
                     .unwrap())
             }
 
-            artist_albums.push(ReleaseGroup {
-                title: album["title"].to_string(),
-                release_date: album["first-release-date"].to_string(),
-                id: Uuid::parse_str(album["id"].as_str()
+            artist_albums.push(ReleaseGroup::new(
+                album["title"].to_string(),
+                album["first-release-date"].to_string(),
+                Uuid::parse_str(album["id"].as_str()
                     .expect("failed to parse release group ID as slice"))
                     .expect("failed to parse release group ID as Uuid"),
-                artist: artist.id,
-                primary_type: album["primary-type"].as_str()
+                Uuid::parse_str(&artist_data["id"].as_str()
+                    .expect("failed to parse artist ID as slice"))
+                    .expect("failed to parse artist ID as Uuid"),
+                album["primary-type"].as_str()
                     .expect("failed to parse album primary type as slice")
                     .parse::<AlbumMainType>()
                     .unwrap(),
-                secondary_types: secondary_types
-            });
+                secondary_types
+            ));
         }
 
-        Some(Artist::new(artist.id, artist.name, artist.gender, artist_type, artist.tags, artist_albums))
+        Some(Artist::new(
+            Uuid::parse_str(artist_data["id"].as_str()
+                    .expect("failed to parse artist ID as slice"))
+                    .expect("failed to parse artist ID as Uuid"),
+            artist_data["name"].to_string(),
+            artist_data["gender"].to_string(),
+            artist_type,
+            tags,
+            artist_albums
+        ))
     }
 }

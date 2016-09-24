@@ -3,6 +3,7 @@ extern crate json;
 extern crate uuid;
 extern crate url;
 
+use std::collections::HashMap;
 use std::io::Read;
 use url::{Url};
 
@@ -36,13 +37,18 @@ impl MusicBrainz {
         }
     }
 
-    fn get(&self, url: &str) -> json::Result<json::JsonValue> {
+    fn get(&self, url: &str, params: &HashMap<&str, &str>) -> json::Result<json::JsonValue> {
         let base_uri = "https://musicbrainz.org/ws/2";
-        let endpoint = Url::parse(&format!("{}/{}", base_uri, url))
+        let mut endpoint = Url::parse(&format!("{}/{}", base_uri, url))
             .expect("error parsing URL");
 
+        for (param, val) in params {
+            endpoint.query_pairs_mut().append_pair(param, val);
+        }
+
         let user_agent = self.user_agent.clone();
-        let mut res = self.client.get(endpoint).header(hyper::header::UserAgent(user_agent))
+        let mut res = self.client.get(endpoint)
+            .header(hyper::header::UserAgent(user_agent))
             .send()
             .expect(&format!("failed to get url '{}'", url));
 
