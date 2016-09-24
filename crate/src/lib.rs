@@ -1,8 +1,10 @@
 extern crate hyper;
 extern crate json;
 extern crate uuid;
+extern crate url;
 
 use std::io::Read;
+use url::{Url};
 
 #[derive(Debug)]
 pub struct MusicBrainz {
@@ -35,8 +37,12 @@ impl MusicBrainz {
     }
 
     fn get(&self, url: &str) -> json::Result<json::JsonValue> {
+        let base_uri = "https://musicbrainz.org/ws/2";
+        let endpoint = Url::parse(&format!("{}/{}", base_uri, url))
+            .expect("error parsing URL");
+
         let user_agent = self.user_agent.clone();
-        let mut res = self.client.get(url).header(hyper::header::UserAgent(user_agent))
+        let mut res = self.client.get(endpoint).header(hyper::header::UserAgent(user_agent))
             .send()
             .expect(&format!("failed to get url '{}'", url));
 

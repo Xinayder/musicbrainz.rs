@@ -47,8 +47,7 @@ impl ArtistTrait for super::MusicBrainz {
     /// assert_eq!(search_results[0].id.hyphenated().to_string(), "4a00ec9d-c635-463a-8cd4-eb61725f0c60");
     /// ```
     fn search(&self, query: &str) -> Vec<Artist> {
-        let endpoint = format!("https://musicbrainz.org/ws/2/artist?query={}&fmt=json", query);
-        let data = self.get(&endpoint).unwrap();
+        let data = self.get(&format!("artist?query={}&fmt=json", query)).unwrap();
 
         let count = data["count"].as_i32().unwrap();
 
@@ -88,9 +87,8 @@ impl ArtistTrait for super::MusicBrainz {
     fn lookup(&self, artist: Artist) -> Option<Artist> {
         let artist = artist.clone();
         let id = artist.id.hyphenated().to_string();
-        let endpoint = format!("https://musicbrainz.org/ws/2/artist/{id}?inc=release-groups&fmt=json", id=&id);
 
-        let artist_data = self.get(&endpoint).unwrap();
+        let artist_data = self.get(&format!("artist/{id}?inc=release-groups&fmt=json", id=&id)).unwrap();
         let artist_type = artist_data["type"].as_str().expect("failed to parse artist type as slice").parse::<PersonType>().unwrap();
         let mut artist_albums: Vec<ReleaseGroup> = Vec::new();
 
