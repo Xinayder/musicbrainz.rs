@@ -29,7 +29,7 @@ impl Artist {
 /// Provides methods for browsing, looking up or searching artists.
 pub trait ArtistTrait {
     fn search(&self, params: &mut HashMap<&str, &str>) -> Vec<Artist>;
-    fn lookup(&self, artist: Artist, params: &mut HashMap<&str, &str>) -> Option<Artist>;
+    fn lookup(&self, artist: Artist, params: &mut HashMap<&str, &str>) -> Result<Artist, String>;
 }
 
 impl ArtistTrait for super::MusicBrainz {
@@ -86,7 +86,7 @@ impl ArtistTrait for super::MusicBrainz {
 
     /// Lookup an artist by using its MusicBrainz Identifier.
     ///
-    fn lookup(&self, artist: Artist, params: &mut HashMap<&str, &str>) -> Option<Artist> {
+    fn lookup(&self, artist: Artist, params: &mut HashMap<&str, &str>) -> Result<Artist, String> {
         params.insert("fmt", "json");
 
         let artist_clone = artist.clone();
@@ -94,7 +94,8 @@ impl ArtistTrait for super::MusicBrainz {
         let artist_data = self.get(&format!("artist/{id}", id=&id), params).unwrap();
 
         if !artist_data["error"].is_null() {
-            return None;
+            let error_msg = artist_data["error"].to_string();
+            return Err(format!("error looking up artist: {msg}", msg=error_msg));
         }
 
         let artist_type = artist_data["type"].as_str().expect("failed to parse artist type as slice").parse::<PersonType>().unwrap();
@@ -134,7 +135,7 @@ impl ArtistTrait for super::MusicBrainz {
             ));
         }
 
-        Some(Artist::new(
+        Ok(Artist::new(
             Uuid::parse_str(artist_data["id"].as_str()
                     .expect("failed to parse artist ID as slice"))
                     .expect("failed to parse artist ID as Uuid"),

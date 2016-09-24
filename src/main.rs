@@ -14,8 +14,8 @@ fn main() {
         query.clear();
         query.insert("inc", "release-groups+tags");
         match app.lookup(result, &mut query) {
-            Some(x) => println!("{:#?}", x),
-            None => println!("error")
+            Ok(x) => println!("{:#?}", x),
+            Err(x) => println!("{}", x)
         };
     }
 }
