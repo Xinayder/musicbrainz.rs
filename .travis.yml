@@ -2,7 +2,6 @@ language: rust
 
 rust:
   - stable
-  - beta
   - nightly
 
 matrix:
@@ -17,12 +16,22 @@ os:
   - linux
   - osx
 
+before_install: |
+  if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+    brew update &&
+    brew install openssl &&
+    export OPENSSL_INCLUDE_DIR="$(brew --prefix openssl)/include" &&
+    export OPENSSL_LIB_DIR="$(brew --prefix openssl)/lib";
+  fi
+
+
 script:
   - cargo build --verbose
   - cargo test --verbose
   - cargo doc --no-deps
 
 after_success: |
+  [ $TRAVIS_OS_NAME = linux ] &&
   [ $TRAVIS_BRANCH = master ] &&
   [ $TRAVIS_PULL_REQUEST = false ] &&
   [ $TRAVIS_RUST_VERSION = nightly ] &&
