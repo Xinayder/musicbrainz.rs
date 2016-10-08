@@ -65,3 +65,4 @@ pub mod release_group;
 pub mod enums;
 
 pub use artist::ArtistTrait;
+pub use release_group::ReleaseGroupTrait;
