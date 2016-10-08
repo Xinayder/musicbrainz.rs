@@ -28,8 +28,8 @@ impl Artist {
 
 /// Provides methods for browsing, looking up or searching artists.
 pub trait ArtistTrait {
-    fn search(&self, params: &mut HashMap<&str, &str>) -> Vec<Artist>;
-    fn lookup(&self, artist: Artist, params: &mut HashMap<&str, &str>) -> Result<Artist, String>;
+    fn search_artist(&self, params: &mut HashMap<&str, &str>) -> Vec<Artist>;
+    fn lookup_artist(&self, artist: Artist, params: &mut HashMap<&str, &str>) -> Result<Artist, String>;
 }
 
 impl ArtistTrait for super::MusicBrainz {
@@ -43,11 +43,11 @@ impl ArtistTrait for super::MusicBrainz {
     /// ```no_run
     /// # use musicbrainz::*;
     /// let musicbrainz = MusicBrainz::new();
-    /// let search_results = musicbrainz.search("deadmau5");
+    /// let search_results = musicbrainz.search_artist("deadmau5");
     ///
     /// assert_eq!(search_results[0].id.hyphenated().to_string(), "4a00ec9d-c635-463a-8cd4-eb61725f0c60");
     /// ```
-    fn search(&self, params: &mut HashMap<&str, &str>) -> Vec<Artist> {
+    fn search_artist(&self, params: &mut HashMap<&str, &str>) -> Vec<Artist> {
         params.insert("fmt", "json");
         let data = self.get("artist", params).unwrap();
 
@@ -86,7 +86,7 @@ impl ArtistTrait for super::MusicBrainz {
 
     /// Lookup an artist by using its MusicBrainz Identifier.
     ///
-    fn lookup(&self, artist: Artist, params: &mut HashMap<&str, &str>) -> Result<Artist, String> {
+    fn lookup_artist(&self, artist: Artist, params: &mut HashMap<&str, &str>) -> Result<Artist, String> {
         params.insert("fmt", "json");
 
         let artist_clone = artist.clone();
