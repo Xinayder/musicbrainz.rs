@@ -26,6 +26,19 @@ impl Artist {
     }
 }
 
+impl PartialEq for Artist {
+    fn eq(&self, other: &Artist) -> bool {
+        self.id == other.id &&
+        self.tags == other.tags &&
+        self.name == other.name &&
+        self.gender == other.gender
+    }
+
+    fn ne(&self, other: &Artist) -> bool {
+        self.id != other.id
+    }
+}
+
 /// Provides methods for browsing, looking up or searching artists.
 pub trait ArtistTrait {
     fn search_artist(&self, params: &mut HashMap<&str, &str>) -> Vec<Artist>;
@@ -42,8 +55,13 @@ impl ArtistTrait for super::MusicBrainz {
     ///
     /// ```no_run
     /// # use musicbrainz::*;
+    /// # use std::collections::HashMap;
     /// let musicbrainz = MusicBrainz::new();
-    /// let search_results = musicbrainz.search_artist("deadmau5");
+    /// let mut query = HashMap::new();
+    ///
+    /// query.insert("query", "deadmau5");
+    ///
+    /// let search_results = musicbrainz.search_artist(&mut query);
     ///
     /// assert_eq!(search_results[0].id.hyphenated().to_string(), "4a00ec9d-c635-463a-8cd4-eb61725f0c60");
     /// ```

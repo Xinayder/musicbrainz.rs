@@ -25,6 +25,12 @@ impl ReleaseGroup {
     }
 }
 
+impl PartialEq for ReleaseGroup {
+    fn eq(&self, other: &ReleaseGroup) -> bool {
+        self.id == other.id && self.artist == other.artist
+    }
+}
+
 pub trait ReleaseGroupTrait {
     fn search_album(&self, params: &mut HashMap<&str, &str>) -> Vec<ReleaseGroup>;
 }
@@ -39,8 +45,13 @@ impl ReleaseGroupTrait for super::MusicBrainz {
     ///
     /// ```no_run
     /// # use musicbrainz::*;
+    /// # use std::collections::HashMap;
     /// let musicbrainz = MusicBrainz::new();
-    /// let search_results = musicbrainz.search_album("metallica");
+    /// let mut query = HashMap::new();
+    ///
+    /// query.insert("query", "metallica");
+    ///
+    /// let search_results = musicbrainz.search_album(&mut query);
     ///
     /// assert_eq!(search_results[0].id.hyphenated().to_string(), "e8f70201-8899-3f0c-9e07-5d6495bc8046");
     /// ```

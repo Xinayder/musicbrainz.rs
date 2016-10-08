@@ -1,7 +1,13 @@
 [package]
-name = "musicbrainz-bin"
+name = "musicbrainz"
 version = "0.1.0"
+description = "MusicBrainz API bindings for Rust"
 authors = ["Alexandre Oliveira <rockytvbr@gmail.com>"]
+repository = "https://github.com/RockyTV/musicbrainz.rs"
+license = "MIT"
 
-[dependencies.musicbrainz]
-path = "crate/"
+[dependencies]
+hyper = "0.9.10"
+json = "0.10.2"
+uuid = "0.3.1"
+url = "1.2.0"
