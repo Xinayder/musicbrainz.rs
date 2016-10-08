@@ -16,3 +16,21 @@ branches:
 os:
   - linux
   - osx
+
+script:
+  - cargo build --verbose
+  - cargo test --verbose
+  - cd crate && cargo doc --no-deps
+
+after_success: |
+  [ $TRAVIS_BRANCH = master ] &&
+  [ $TRAVIS_PULL_REQUEST = false ] &&
+  [ $TRAVIS_RUST_VERSION = nightly ] &&
+  echo '<meta http-equiv=refresh content=0;url=musicbrainz/index.html>' > target/doc/index.html &&
+  pip install ghp-import --user $USER &&
+  $HOME/.local/bin/ghp-import -n target/doc &&
+  git push -qf https://${TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages
+
+notifications:
+  email:
+    on_success: never
