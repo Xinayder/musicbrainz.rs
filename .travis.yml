@@ -20,7 +20,7 @@ os:
 script:
   - cargo build --verbose
   - cargo test --verbose
-  - cd crate && cargo doc --no-deps
+  - cargo doc --no-deps
 
 after_success: |
   [ $TRAVIS_BRANCH = master ] &&
