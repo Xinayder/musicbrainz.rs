@@ -2,6 +2,7 @@ use release_group::ReleaseGroup;
 use uuid::Uuid;
 use enums::{PersonType, AlbumMainType, AlbumSecondaryType};
 use std::collections::HashMap;
+use traits::ArtistTrait;
 
 #[derive(Debug, Clone)]
 pub struct Artist {
@@ -37,12 +38,6 @@ impl PartialEq for Artist {
     fn ne(&self, other: &Artist) -> bool {
         self.id != other.id
     }
-}
-
-/// Provides methods for browsing, looking up or searching artists.
-pub trait ArtistTrait {
-    fn search_artist(&self, params: &mut HashMap<&str, &str>) -> Vec<Artist>;
-    fn lookup_artist(&self, artist: Artist, params: &mut HashMap<&str, &str>) -> Result<Artist, String>;
 }
 
 impl ArtistTrait for super::MusicBrainz {

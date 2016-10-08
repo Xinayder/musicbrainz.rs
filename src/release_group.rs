@@ -1,6 +1,7 @@
 use uuid::Uuid;
 use enums::*;
 use std::collections::HashMap;
+use traits::AlbumTrait;
 
 #[derive(Debug, Clone)]
 pub struct ReleaseGroup {
@@ -31,11 +32,7 @@ impl PartialEq for ReleaseGroup {
     }
 }
 
-pub trait ReleaseGroupTrait {
-    fn search_album(&self, params: &mut HashMap<&str, &str>) -> Vec<ReleaseGroup>;
-}
-
-impl ReleaseGroupTrait for super::MusicBrainz {
+impl AlbumTrait for super::MusicBrainz {
     /// Searches MusicBrainz for release groups based on the search query.
     ///
     /// Returns a `Vec` containing the release groups matching the search query.
@@ -50,7 +47,6 @@ impl ReleaseGroupTrait for super::MusicBrainz {
     /// let mut query = HashMap::new();
     ///
     /// query.insert("query", "metallica");
-    ///
     /// let search_results = musicbrainz.search_album(&mut query);
     ///
     /// assert_eq!(search_results[0].id.hyphenated().to_string(), "e8f70201-8899-3f0c-9e07-5d6495bc8046");

@@ -63,6 +63,6 @@ impl MusicBrainz {
 pub mod artist;
 pub mod release_group;
 pub mod enums;
+pub mod traits;
 
-pub use artist::ArtistTrait;
-pub use release_group::ReleaseGroupTrait;
+pub use traits::*;
