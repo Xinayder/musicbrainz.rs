@@ -3,6 +3,8 @@ language: rust
 rust:
   - stable
   - nightly
+  
+cache: cargo
 
 matrix:
   allow_failures:
