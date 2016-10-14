@@ -32,7 +32,8 @@ impl PartialEq for Artist {
         self.id == other.id &&
         self.tags == other.tags &&
         self.name == other.name &&
-        self.gender == other.gender
+        self.gender == other.gender &&
+        self.release_groups == other.release_groups
     }
 
     fn ne(&self, other: &Artist) -> bool {
@@ -106,7 +107,10 @@ impl ArtistTrait for super::MusicBrainz {
             return Err(format!("error looking up artist: {msg}", msg=error_msg));
         }
 
-        let artist_type = artist_data["type"].as_str().expect("failed to parse artist type as slice").parse::<PersonType>().unwrap();
+        let artist_type = artist_data["type"].as_str()
+            .expect("failed to parse artist type as slice")
+            .parse::<PersonType>()
+            .unwrap();
 
         let mut tags: Vec<String> = Vec::new();
         if !artist_data["tags"].is_null() {
