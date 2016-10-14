@@ -51,3 +51,22 @@ fn test_search_album() {
 
     assert_eq!(correct, generated);
 }
+
+#[test]
+fn test_lookup_artist() {
+    let m = MusicBrainz::new();
+    let generated = artist::Artist::new(
+        Uuid::parse_str("4a00ec9d-c635-463a-8cd4-eb61725f0c60")
+            .expect("failed to parse artist ID as Uuid"),
+        String::from("deadmau5"),
+        String::from("Male"),
+        enums::PersonType::Person,
+        Vec::new(),
+        Vec::new()
+    );
+
+    let mut query = HashMap::new();
+    let correct = m.lookup_artist(generated.id, &mut query).unwrap();
+
+    assert_eq!(correct, generated);
+}
