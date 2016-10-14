@@ -12,4 +12,5 @@ pub trait ArtistTrait {
 /// Provides methods for browsing, looking up or searching release groups.
 pub trait AlbumTrait {
     fn search_album(&self, params: &mut HashMap<&str, &str>) -> Vec<ReleaseGroup>;
+    fn lookup_album(&self, album_id: Uuid, params: &mut HashMap<&str, &str>) -> Result<ReleaseGroup, String>;
 }

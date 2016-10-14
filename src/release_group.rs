@@ -88,4 +88,51 @@ impl AlbumTrait for super::MusicBrainz {
         }
         results
     }
+
+    /// Lookup a release group by using its MusicBrainz Identifier.
+    ///
+    fn lookup_album(&self, album_id: Uuid, params: &mut HashMap<&str, &str>) -> Result<ReleaseGroup, String> {
+        let mut album_data = self.get(&format!("release-group/{id}", id=&album_id), params).unwrap();
+
+        if !album_data["error"].is_null() {
+            let error_msg = album_data["error"].to_string();
+            return Err(format!("error looking up release group: {msg}", msg=error_msg));
+        }
+
+        let album_type = album_data["primary-type"].as_str()
+            .expect("failed to parse release group type as slice")
+            .parse::<AlbumMainType>()
+            .unwrap();
+
+        let mut secondary_types: Vec<AlbumSecondaryType> = Vec::new();
+        if !album_data["secondary-types"].is_null() && !album_data["secondary-types"].is_empty() {
+            for secondary_type in album_data["secondary-types"].members() {
+                secondary_types.push(
+                        secondary_type.as_str()
+                        .expect("failed to parse release group secondary type as slice")
+                        .parse::<AlbumSecondaryType>()
+                        .unwrap()
+                );
+            }
+        }
+
+        let mut artist: Uuid = Uuid::nil();
+        if !album_data["artist-credit"].is_null() && !album_data["artist-credit"].is_empty() {
+            let artist_credit = album_data["artist-credit"].pop();
+            artist = Uuid::parse_str(artist_credit["artist"]["id"].as_str()
+                        .expect("failed to parse artist credit ID as slice"))
+                        .expect("failed to parse artist credit ID as Uuid");
+        }
+
+        Ok(ReleaseGroup::new(
+            album_data["title"].to_string(),
+            album_data["first-release-date"].to_string(),
+            Uuid::parse_str(album_data["id"].as_str()
+                .expect("failed to parse release group ID as slice"))
+                .expect("failed to parse release group ID as Uuid"),
+            artist,
+            album_type,
+            secondary_types
+        ))
+    }
 }
