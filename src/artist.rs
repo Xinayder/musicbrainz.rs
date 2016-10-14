@@ -99,12 +99,10 @@ impl ArtistTrait for super::MusicBrainz {
 
     /// Lookup an artist by using its MusicBrainz Identifier.
     ///
-    fn lookup_artist(&self, artist: Artist, params: &mut HashMap<&str, &str>) -> Result<Artist, String> {
+    fn lookup_artist(&self, artist_id: Uuid, params: &mut HashMap<&str, &str>) -> Result<Artist, String> {
         params.insert("fmt", "json");
 
-        let artist_clone = artist.clone();
-        let id = artist_clone.id.hyphenated().to_string();
-        let artist_data = self.get(&format!("artist/{id}", id=&id), params).unwrap();
+        let artist_data = self.get(&format!("artist/{id}", id=&artist_id), params).unwrap();
 
         if !artist_data["error"].is_null() {
             let error_msg = artist_data["error"].to_string();
