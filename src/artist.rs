@@ -107,7 +107,6 @@ impl ArtistTrait for super::MusicBrainz {
         }
 
         let artist_type = artist_data["type"].as_str().expect("failed to parse artist type as slice").parse::<PersonType>().unwrap();
-        let mut artist_albums: Vec<ReleaseGroup> = Vec::new();
 
         let mut tags: Vec<String> = Vec::new();
         if !artist_data["tags"].is_null() {
@@ -116,31 +115,33 @@ impl ArtistTrait for super::MusicBrainz {
             }
         }
 
-        let release_groups = &artist_data["release-groups"];
-        for album in release_groups.members() {
-            let mut secondary_types: Vec<AlbumSecondaryType> = Vec::new();
-            for secondary_type in album["secondary-types"].members() {
-                secondary_types.push(secondary_type.as_str()
-                    .expect("failed to parse album secondary type as slice")
-                    .parse::<AlbumSecondaryType>()
-                    .unwrap())
-            }
+        let mut artist_albums: Vec<ReleaseGroup> = Vec::new();
+        if !artist_data["release-groups"].is_null() {
+            for album in artist_data["release-groups"].members() {
+                let mut secondary_types: Vec<AlbumSecondaryType> = Vec::new();
+                for secondary_type in album["secondary-types"].members() {
+                    secondary_types.push(secondary_type.as_str()
+                        .expect("failed to parse album secondary type as slice")
+                        .parse::<AlbumSecondaryType>()
+                        .unwrap())
+                }
 
-            artist_albums.push(ReleaseGroup::new(
-                album["title"].to_string(),
-                album["first-release-date"].to_string(),
-                Uuid::parse_str(album["id"].as_str()
-                    .expect("failed to parse release group ID as slice"))
-                    .expect("failed to parse release group ID as Uuid"),
-                Uuid::parse_str(&artist_data["id"].as_str()
-                    .expect("failed to parse artist ID as slice"))
-                    .expect("failed to parse artist ID as Uuid"),
-                album["primary-type"].as_str()
-                    .expect("failed to parse album primary type as slice")
-                    .parse::<AlbumMainType>()
-                    .unwrap(),
-                secondary_types
-            ));
+                artist_albums.push(ReleaseGroup::new(
+                    album["title"].to_string(),
+                    album["first-release-date"].to_string(),
+                    Uuid::parse_str(album["id"].as_str()
+                        .expect("failed to parse release group ID as slice"))
+                        .expect("failed to parse release group ID as Uuid"),
+                    Uuid::parse_str(&artist_data["id"].as_str()
+                        .expect("failed to parse artist ID as slice"))
+                        .expect("failed to parse artist ID as Uuid"),
+                    album["primary-type"].as_str()
+                        .expect("failed to parse album primary type as slice")
+                        .parse::<AlbumMainType>()
+                        .unwrap(),
+                    secondary_types
+                ));
+            }
         }
 
         Ok(Artist::new(
