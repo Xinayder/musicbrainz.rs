@@ -61,7 +61,6 @@ impl ArtistTrait for super::MusicBrainz {
     /// assert_eq!(search_results[0].id.hyphenated().to_string(), "4a00ec9d-c635-463a-8cd4-eb61725f0c60");
     /// ```
     fn search_artist(&self, params: &mut HashMap<&str, &str>) -> Vec<Artist> {
-        params.insert("fmt", "json");
         let data = self.get("artist", params).unwrap();
 
         let count = data["count"].as_i32().unwrap();
@@ -100,8 +99,6 @@ impl ArtistTrait for super::MusicBrainz {
     /// Lookup an artist by using its MusicBrainz Identifier.
     ///
     fn lookup_artist(&self, artist_id: Uuid, params: &mut HashMap<&str, &str>) -> Result<Artist, String> {
-        params.insert("fmt", "json");
-
         let artist_data = self.get(&format!("artist/{id}", id=&artist_id), params).unwrap();
 
         if !artist_data["error"].is_null() {

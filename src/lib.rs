@@ -42,6 +42,7 @@ impl MusicBrainz {
         let mut endpoint = Url::parse(&format!("{}/{}", base_uri, url))
             .expect("error parsing URL");
 
+        endpoint.query_pairs_mut().append_pair("fmt", "json");
         for (param, val) in params {
             endpoint.query_pairs_mut().append_pair(param, val);
         }

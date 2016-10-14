@@ -52,7 +52,6 @@ impl AlbumTrait for super::MusicBrainz {
     /// assert_eq!(search_results[0].id.hyphenated().to_string(), "e8f70201-8899-3f0c-9e07-5d6495bc8046");
     /// ```
     fn search_album(&self, params: &mut HashMap<&str, &str>) -> Vec<ReleaseGroup> {
-        params.insert("fmt", "json");
         let data = self.get("release-group", params).unwrap();
 
         let count = data["count"].as_i32().unwrap();
