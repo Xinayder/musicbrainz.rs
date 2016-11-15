@@ -30,10 +30,7 @@ impl Artist {
 impl PartialEq for Artist {
     fn eq(&self, other: &Artist) -> bool {
         self.id == other.id &&
-        self.tags == other.tags &&
-        self.name == other.name &&
-        self.gender == other.gender &&
-        self.release_groups == other.release_groups
+        self.name == other.name
     }
 
     fn ne(&self, other: &Artist) -> bool {
