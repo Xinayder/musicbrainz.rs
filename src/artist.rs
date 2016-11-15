@@ -2,7 +2,7 @@ use release_group::ReleaseGroup;
 use uuid::Uuid;
 use enums::{PersonType, AlbumMainType, AlbumSecondaryType};
 use std::collections::HashMap;
-use traits::ArtistTrait;
+use traits::Entity;
 
 #[derive(Debug, Clone)]
 pub struct Artist {
@@ -25,6 +25,17 @@ impl Artist {
             release_groups: release_groups
         }
     }
+
+    pub fn empty() -> Artist {
+        Artist::new(
+            Uuid::nil(),
+            String::new(),
+            String::new(),
+            PersonType::Other,
+            Vec::new(),
+            Vec::new()
+        )
+    }
 }
 
 impl PartialEq for Artist {
@@ -38,28 +49,9 @@ impl PartialEq for Artist {
     }
 }
 
-impl ArtistTrait for super::MusicBrainz {
-    /// Searches MusicBrainz for artists based on the search query.
-    ///
-    /// Returns a `Vec` containing the artists matching the search query.
-    /// If no artists were found, returns an empty `Vec`.
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use musicbrainz::*;
-    /// # use std::collections::HashMap;
-    /// let musicbrainz = MusicBrainz::new();
-    /// let mut query = HashMap::new();
-    ///
-    /// query.insert("query", "deadmau5");
-    ///
-    /// let search_results = musicbrainz.search_artist(&mut query);
-    ///
-    /// assert_eq!(search_results[0].id.hyphenated().to_string(), "4a00ec9d-c635-463a-8cd4-eb61725f0c60");
-    /// ```
-    fn search_artist(&self, params: &mut HashMap<&str, &str>) -> Vec<Artist> {
-        let data = self.get("artist", params).unwrap();
+impl Entity for Artist {
+    fn search(&self, client: &super::MusicBrainz, params: &mut HashMap<&str, &str>) -> Vec<Self> {
+        let data = client.get("artist", params).unwrap();
 
         let count = data["count"].as_i32().unwrap();
 
@@ -94,10 +86,8 @@ impl ArtistTrait for super::MusicBrainz {
         results
     }
 
-    /// Lookup an artist by using its MusicBrainz Identifier.
-    ///
-    fn lookup_artist(&self, artist_id: Uuid, params: &mut HashMap<&str, &str>) -> Result<Artist, String> {
-        let artist_data = self.get(&format!("artist/{id}", id=&artist_id), params).unwrap();
+    fn lookup(&self, client: &super::MusicBrainz, entity_id: &Uuid, params: &mut HashMap<&str, &str>) -> Result<Self, String> {
+        let artist_data = client.get(&format!("artist/{id}", id=entity_id), params).unwrap();
 
         if !artist_data["error"].is_null() {
             let error_msg = artist_data["error"].to_string();

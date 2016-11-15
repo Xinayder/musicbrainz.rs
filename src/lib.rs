@@ -59,6 +59,10 @@ impl MusicBrainz {
         json::parse(&buf)
     }
 
+    pub fn artist(&self) -> artist::Artist {
+        artist::Artist::empty()
+    }
+
 }
 
 pub mod artist;
