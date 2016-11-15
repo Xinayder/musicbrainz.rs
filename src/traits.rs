@@ -20,7 +20,7 @@ pub trait Entity: Sized {
     ///
     /// query.insert("query", "deadmau5");
     ///
-    /// let search_results = musicbrainz.artist().search(&musicbrainz, &mut query);
+    /// let search_results = musicbrainz.artist().search(&musicbrainz, &mut query).unwrap();
     ///
     /// assert_eq!(search_results[0].id.hyphenated().to_string(), "4a00ec9d-c635-463a-8cd4-eb61725f0c60");
     /// ```
