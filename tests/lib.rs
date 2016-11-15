@@ -1,8 +1,4 @@
 extern crate musicbrainz;
-extern crate uuid;
-
-use uuid::Uuid;
-use std::collections::HashMap;
 use musicbrainz::*;
 
 #[test]
