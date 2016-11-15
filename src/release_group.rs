@@ -1,7 +1,7 @@
 use uuid::Uuid;
 use enums::*;
 use std::collections::HashMap;
-use traits::AlbumTrait;
+use traits::Entity;
 
 #[derive(Debug, Clone)]
 pub struct ReleaseGroup {
@@ -32,27 +32,9 @@ impl PartialEq for ReleaseGroup {
     }
 }
 
-impl AlbumTrait for super::MusicBrainz {
-    /// Searches MusicBrainz for release groups based on the search query.
-    ///
-    /// Returns a `Vec` containing the release groups matching the search query.
-    /// If no release groups were found, returns an empty `Vec`.
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use musicbrainz::*;
-    /// # use std::collections::HashMap;
-    /// let musicbrainz = MusicBrainz::new();
-    /// let mut query = HashMap::new();
-    ///
-    /// query.insert("query", "metallica");
-    /// let search_results = musicbrainz.search_album(&mut query);
-    ///
-    /// assert_eq!(search_results[0].id.hyphenated().to_string(), "e8f70201-8899-3f0c-9e07-5d6495bc8046");
-    /// ```
-    fn search_album(&self, params: &mut HashMap<&str, &str>) -> Vec<ReleaseGroup> {
-        let data = self.get("release-group", params).unwrap();
+impl Entity for ReleaseGroup {
+    fn search(&self, client: &super::MusicBrainz, params: &mut HashMap<&str, &str>) -> Vec<Self> {
+        let data = client.get("release-group", params).unwrap();
 
         let count = data["count"].as_i32().unwrap();
 
@@ -89,10 +71,8 @@ impl AlbumTrait for super::MusicBrainz {
         results
     }
 
-    /// Lookup a release group by using its MusicBrainz Identifier.
-    ///
-    fn lookup_album(&self, album_id: Uuid, params: &mut HashMap<&str, &str>) -> Result<ReleaseGroup, String> {
-        let mut album_data = self.get(&format!("release-group/{id}", id=&album_id), params).unwrap();
+    fn lookup(&self, client: &super::MusicBrainz, entity_id: &Uuid, params: &mut HashMap<&str, &str>) -> Result<Self, String> {
+        let mut album_data = client.get(&format!("release-group/{id}", id=entity_id), params).unwrap();
 
         if !album_data["error"].is_null() {
             let error_msg = album_data["error"].to_string();
