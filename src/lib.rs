@@ -69,6 +69,7 @@ pub mod artist;
 pub mod release_group;
 pub mod enums;
 pub mod traits;
+pub mod error;
 
 pub use traits::*;
 pub use uuid::Uuid;

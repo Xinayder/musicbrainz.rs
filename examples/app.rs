@@ -10,7 +10,7 @@ fn main() {
     query.insert("query", "metallica");
     let results = mb.artist().search(&mb, &mut query);
 
-    println!("{:?}", results[0]);
+    println!("{:?}", results);
 
     query.clear();
     query.insert("inc", "release-groups+tags");

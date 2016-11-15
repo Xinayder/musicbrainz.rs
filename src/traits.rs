@@ -1,19 +1,6 @@
-use artist::Artist;
-use release_group::ReleaseGroup;
-use std::collections::HashMap;
+use error::Error;
 use uuid::Uuid;
-
-/// Provides methods for browsing, looking up or searching artists.
-pub trait ArtistTrait {
-    fn search_artist(&self, params: &mut HashMap<&str, &str>) -> Vec<Artist>;
-    fn lookup_artist(&self, artist_id: Uuid, params: &mut HashMap<&str, &str>) -> Result<Artist, String>;
-}
-
-/// Provides methods for browsing, looking up or searching release groups.
-pub trait AlbumTrait {
-    fn search_album(&self, params: &mut HashMap<&str, &str>) -> Vec<ReleaseGroup>;
-    fn lookup_album(&self, album_id: Uuid, params: &mut HashMap<&str, &str>) -> Result<ReleaseGroup, String>;
-}
+use std::collections::HashMap;
 
 pub trait Entity: Sized {
     /// Searches MusicBrainz for entities based on the search query.
@@ -37,7 +24,7 @@ pub trait Entity: Sized {
     ///
     /// assert_eq!(search_results[0].id.hyphenated().to_string(), "4a00ec9d-c635-463a-8cd4-eb61725f0c60");
     /// ```
-    fn search(&self, client: &super::MusicBrainz, params: &mut HashMap<&str, &str>) -> Vec<Self>;
+    fn search(&self, client: &super::MusicBrainz, params: &mut HashMap<&str, &str>) -> Result<Vec<Self>, Error>;
 
     /// Lookup an entity by using its MusicBrainz Identifier.
     ///
@@ -58,5 +45,5 @@ pub trait Entity: Sized {
     /// let artist_id = Uuid::parse_str("4a00ec9d-c635-463a-8cd4-eb61725f0c60").expect("failed to parse artist ID as Uuid");
     /// let result = musicbrainz.artist().lookup(&musicbrainz, &artist_id, &mut query);
     /// assert_eq!(result.unwrap(), compare)
-    fn lookup(&self, client: &super::MusicBrainz, entity_id: &Uuid, params: &mut HashMap<&str, &str>) -> Result<Self, String>;
+    fn lookup(&self, client: &super::MusicBrainz, entity_id: &Uuid, params: &mut HashMap<&str, &str>) -> Result<Self, Error>;
 }
