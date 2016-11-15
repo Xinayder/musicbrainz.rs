@@ -8,9 +8,9 @@ fn main() {
     let mut query = HashMap::new();
 
     query.insert("query", "metallica");
-    let results = mb.artist().search(&mb, &mut query);
+    let results = mb.artist().search(&mb, &mut query).unwrap();
 
-    println!("{:?}", results);
+    println!("{}", results[0]);
 
     query.clear();
     query.insert("inc", "release-groups+tags");
@@ -18,5 +18,5 @@ fn main() {
                             .expect("failed to parse artist ID as Uuid");
     let result = mb.artist().lookup(&mb, &artist_id, &mut query);
 
-    println!("{:#?}", result);
+    println!("{}", result.unwrap());
 }

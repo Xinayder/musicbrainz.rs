@@ -1,6 +1,7 @@
 use release_group::ReleaseGroup;
 use uuid::Uuid;
 use enums::{PersonType, AlbumMainType, AlbumSecondaryType};
+use std::fmt;
 use std::collections::HashMap;
 use traits::Entity;
 use error::Error;
@@ -47,6 +48,13 @@ impl PartialEq for Artist {
 
     fn ne(&self, other: &Artist) -> bool {
         self.id != other.id
+    }
+}
+
+impl fmt::Display for Artist {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "{name} ({type})", name=self.name, type=self.artist_type);
+        writeln!(f, "Id: {id}", id=self.id.hyphenated().to_string())
     }
 }
 

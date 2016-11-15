@@ -1,4 +1,5 @@
 use std::str::FromStr;
+use std::fmt;
 
 #[derive(Debug, Clone)]
 /// The PersonType enum is used to state whether an artist is a person, a group, or something else.
@@ -29,6 +30,19 @@ impl FromStr for PersonType {
             "Character" => Ok(PersonType::Character),
             "Other" => Ok(PersonType::Other),
             _ => Err(()),
+        }
+    }
+}
+
+impl fmt::Display for PersonType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            PersonType::Person => write!(f, "Person"),
+            PersonType::Group => write!(f, "Group"),
+            PersonType::Orchestra => write!(f, "Orchestra"),
+            PersonType::Choir => write!(f, "Choir"),
+            PersonType::Character => write!(f, "Character"),
+            PersonType::Other => write!(f, "Other")
         }
     }
 }
