@@ -26,7 +26,7 @@ pub trait Entity: Sized {
     /// ```
     fn search(&self, client: &super::MusicBrainz, params: &mut HashMap<&str, &str>) -> Result<Vec<Self>, Error>;
 
-    /// Lookup an entity by using its MusicBrainz Identifier.
+    /// Performs a lookup of an entity by using its MusicBrainz Identifier.
     ///
     /// # Example
     ///
