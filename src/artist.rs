@@ -1,6 +1,6 @@
 use release_group::ReleaseGroup;
 use uuid::Uuid;
-use enums::{PersonType, AlbumMainType, AlbumSecondaryType};
+use enums::{PersonType, AlbumType};
 use std::fmt;
 use std::collections::HashMap;
 use traits::Entity;
@@ -142,10 +142,10 @@ impl Entity for Artist {
         let mut artist_albums: Vec<ReleaseGroup> = Vec::new();
         if !artist_data["release-groups"].is_null() {
             for album in artist_data["release-groups"].members() {
-                let mut secondary_types: Vec<AlbumSecondaryType> = Vec::new();
+                let mut secondary_types: Vec<AlbumType> = Vec::new();
                 for secondary_type in album["secondary-types"].members() {
                     secondary_types.push(match secondary_type.as_str() {
-                        Some(x) => x.parse::<AlbumSecondaryType>().unwrap(),
+                        Some(x) => x.parse::<AlbumType>().unwrap(),
                         None => return Err(Error::AsSlice)
                     });
                 }
@@ -161,7 +161,7 @@ impl Entity for Artist {
                 };
 
                 let album_type = match album["primary-type"].as_str() {
-                    Some(x) => x.parse::<AlbumMainType>().unwrap(),
+                    Some(x) => x.parse::<AlbumType>().unwrap(),
                     None => return Err(Error::AsSlice)
                 };
 

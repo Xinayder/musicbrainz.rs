@@ -48,31 +48,11 @@ impl fmt::Display for PersonType {
 }
 
 #[derive(Debug, Clone)]
-pub enum AlbumMainType {
+pub enum AlbumType {
     Album,
     Single,
     EP,
     Broadcast,
-    Other
-}
-
-impl FromStr for AlbumMainType {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<AlbumMainType, ()> {
-        match s {
-            "Album" => Ok(AlbumMainType::Album),
-            "Single" => Ok(AlbumMainType::Single),
-            "EP" => Ok(AlbumMainType::EP),
-            "Broadcast" => Ok(AlbumMainType::Broadcast),
-            "Other" => Ok(AlbumMainType::Other),
-            _ => Err(())
-        }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub enum AlbumSecondaryType {
     Compilation,
     Soundtrack,
     Spokenword,
@@ -81,24 +61,51 @@ pub enum AlbumSecondaryType {
     Live,
     Remix,
     DjMix,
-    MixtapeStreet
+    MixtapeStreet,
+    Other,
 }
 
-impl FromStr for AlbumSecondaryType {
+impl FromStr for AlbumType {
     type Err = ();
 
-    fn from_str(s: &str) -> Result<AlbumSecondaryType, ()> {
+    fn from_str(s: &str) -> Result<AlbumType, ()> {
         match s {
-            "Compilation" => Ok(AlbumSecondaryType::Compilation),
-            "Soundtrack" => Ok(AlbumSecondaryType::Soundtrack),
-            "Spokenword" => Ok(AlbumSecondaryType::Spokenword),
-            "Interview" => Ok(AlbumSecondaryType::Interview),
-            "Audiobook" => Ok(AlbumSecondaryType::Audiobook),
-            "Live" => Ok(AlbumSecondaryType::Live),
-            "Remix" => Ok(AlbumSecondaryType::Remix),
-            "DJ-mix" => Ok(AlbumSecondaryType::DjMix),
-            "Mixtape/Street" => Ok(AlbumSecondaryType::MixtapeStreet),
+            "Album" => Ok(AlbumType::Album),
+            "Single" => Ok(AlbumType::Single),
+            "EP" => Ok(AlbumType::EP),
+            "Broadcast" => Ok(AlbumType::Broadcast),
+            "Compilation" => Ok(AlbumType::Compilation),
+            "Soundtrack" => Ok(AlbumType::Soundtrack),
+            "Spokenword" => Ok(AlbumType::Spokenword),
+            "Interview" => Ok(AlbumType::Interview),
+            "Audiobook" => Ok(AlbumType::Audiobook),
+            "Live" => Ok(AlbumType::Live),
+            "Remix" => Ok(AlbumType::Remix),
+            "DJ-mix" => Ok(AlbumType::DjMix),
+            "Mixtape/Street" => Ok(AlbumType::MixtapeStreet),
+            "Other" => Ok(AlbumType::Other),
             _ => Err(())
+        }
+    }
+}
+
+impl fmt::Display for AlbumType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            AlbumType::Album => write!(f, "Album"),
+            AlbumType::Single => write!(f, "Single"),
+            AlbumType::EP => write!(f, "EP"),
+            AlbumType::Broadcast => write!(f, "Broadcast"),
+            AlbumType::Compilation => write!(f, "Compilation"),
+            AlbumType::Soundtrack => write!(f, "Soundtrack"),
+            AlbumType::Spokenword => write!(f, "Spokenword"),
+            AlbumType::Interview => write!(f, "Interview"),
+            AlbumType::Audiobook => write!(f, "Audiobook"),
+            AlbumType::Live => write!(f, "Live"),
+            AlbumType::Remix => write!(f, "Remix"),
+            AlbumType::DjMix => write!(f, "DJ-mix"),
+            AlbumType::MixtapeStreet => write!(f, "Mixtape/Street"),
+            AlbumType::Other => write!(f, "Other")
         }
     }
 }

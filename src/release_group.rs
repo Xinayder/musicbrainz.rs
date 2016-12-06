@@ -1,6 +1,7 @@
 use uuid::Uuid;
 use enums::*;
 use std::collections::HashMap;
+use std::fmt;
 use traits::Entity;
 use error::Error;
 
@@ -10,12 +11,12 @@ pub struct ReleaseGroup {
     pub release_date: String,
     pub id: Uuid,
     pub artist: Uuid,
-    pub primary_type: AlbumMainType,
-    pub secondary_types: Vec<AlbumSecondaryType>
+    pub primary_type: AlbumType,
+    pub secondary_types: Vec<AlbumType>
 }
 
 impl ReleaseGroup {
-    pub fn new(title: String, release_date: String, id: Uuid, artist: Uuid, primary_type: AlbumMainType, secondary_types: Vec<AlbumSecondaryType>) -> ReleaseGroup {
+    pub fn new(title: String, release_date: String, id: Uuid, artist: Uuid, primary_type: AlbumType, secondary_types: Vec<AlbumType>) -> ReleaseGroup {
         ReleaseGroup {
             title: title,
             release_date: release_date,
@@ -30,6 +31,13 @@ impl ReleaseGroup {
 impl PartialEq for ReleaseGroup {
     fn eq(&self, other: &ReleaseGroup) -> bool {
         self.id == other.id && self.artist == other.artist
+    }
+}
+
+impl fmt::Display for ReleaseGroup {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "{primary} {name}", primary=self.primary_type, name=self.title);
+        writeln!(f, "Id: {id}", id=self.id)
     }
 }
 
@@ -61,7 +69,7 @@ impl Entity for ReleaseGroup {
                     None => return Err(Error::AsSlice)
                 };
 
-                let secondary_types: Vec<AlbumSecondaryType> = Vec::new();
+                let secondary_types: Vec<AlbumType> = Vec::new();
                 let artist_credits = &album["artist-credit"];
                 let artist_id = match artist_credits[0]["artist"]["id"].as_str() {
                     Some(x) => {
@@ -74,7 +82,7 @@ impl Entity for ReleaseGroup {
                 };
 
                 let album_type = match album["primary_type"].as_str() {
-                    Some(x) => x.parse::<AlbumMainType>().unwrap(),
+                    Some(x) => x.parse::<AlbumType>().unwrap(),
                     None => return Err(Error::AsSlice)
                 };
 
@@ -103,16 +111,16 @@ impl Entity for ReleaseGroup {
         }
 
         let album_type = match album_data["primary-type"].as_str() {
-            Some(x) => x.parse::<AlbumMainType>().unwrap(),
+            Some(x) => x.parse::<AlbumType>().unwrap(),
             None => return Err(Error::AsSlice)
         };
 
-        let mut secondary_types: Vec<AlbumSecondaryType> = Vec::new();
+        let mut secondary_types: Vec<AlbumType> = Vec::new();
         if !album_data["secondary-types"].is_null() && !album_data["secondary-types"].is_empty() {
             for secondary_type in album_data["secondary-types"].members() {
                 secondary_types.push(
                     match secondary_type.as_str() {
-                        Some(x) => x.parse::<AlbumSecondaryType>().unwrap(),
+                        Some(x) => x.parse::<AlbumType>().unwrap(),
                         None => return Err(Error::AsSlice)
                     }
                 );
