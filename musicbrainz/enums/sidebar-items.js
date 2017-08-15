@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["AlbumType",""],["PersonType","The PersonType enum is used to state whether an artist is a person, a group, or something else."]]});

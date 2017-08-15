@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["artist",""],["enums",""],["error",""],["release_group",""],["traits",""]],"struct":[["MusicBrainz",""],["Uuid","A Universally Unique Identifier (UUID)."]]});
